@@ -4,7 +4,9 @@ import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.util.runExempted
 import com.willfp.libreforge.NoCompileData
 import com.willfp.libreforge.effects.Effect
+import com.willfp.libreforge.getDoubleFromExpression
 import com.willfp.libreforge.getIntFromExpression
+import com.willfp.libreforge.getOrNull
 import com.willfp.libreforge.triggers.TriggerData
 import com.willfp.libreforge.triggers.TriggerParameter
 import org.bukkit.entity.AbstractArrow
@@ -31,12 +33,9 @@ object EffectShootArrow : Effect<NoCompileData>("shoot_arrow") {
             }
 
             arrow.pickupStatus = AbstractArrow.PickupStatus.DISALLOWED
-            arrow.pierceLevel = 1
-            if (config.getStringOrNull("arrow_damage") != null) {
-                arrow.damage = config.getDoubleFromExpression("arrow_damage")
-            }
-            else {
-                arrow.damage = 6.0
+            val damage = config.getOrNull("arrow_damage") { getDoubleFromExpression(it, data) }
+            if (damage != null) {
+                arrow.damage = damage
             }
 
             if (fire) {

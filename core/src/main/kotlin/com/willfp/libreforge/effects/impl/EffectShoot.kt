@@ -2,10 +2,8 @@ package com.willfp.libreforge.effects.impl
 
 import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.util.runExempted
-import com.willfp.libreforge.NoCompileData
-import com.willfp.libreforge.arguments
+import com.willfp.libreforge.*
 import com.willfp.libreforge.effects.Effect
-import com.willfp.libreforge.enumValueOfOrNull
 import com.willfp.libreforge.triggers.TriggerData
 import com.willfp.libreforge.triggers.TriggerParameter
 import org.bukkit.entity.AbstractArrow
@@ -44,12 +42,9 @@ object EffectShoot : Effect<NoCompileData>("shoot") {
 
             if (projectile is AbstractArrow) {
                 projectile.pickupStatus = AbstractArrow.PickupStatus.DISALLOWED
-                projectile.pierceLevel = 1
-                if (config.getStringOrNull("arrow_damage") != null) {
-                    projectile.damage = config.getDoubleFromExpression("arrow_damage")
-                }
-                else {
-                    projectile.damage = 6.0
+                val damage = config.getOrNull("arrow_damage") { getDoubleFromExpression(it, data) }
+                if (damage != null) {
+                    projectile.damage = damage
                 }
             }
 
