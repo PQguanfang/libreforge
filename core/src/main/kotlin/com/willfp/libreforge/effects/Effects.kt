@@ -272,6 +272,7 @@ object Effects : Registry<Effect<*>>() {
         register(EffectArmorToughness)
         register(EffectArrowRing)
         register(EffectAttackSpeedMultiplier)
+        register(EffectAutoPlant)
         register(EffectAutosmelt)
         register(EffectBleed)
         register(EffectBlockCommands)

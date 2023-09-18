@@ -3,6 +3,7 @@ package com.willfp.libreforge.triggers.impl
 import com.willfp.libreforge.triggers.Trigger
 import com.willfp.libreforge.triggers.TriggerData
 import com.willfp.libreforge.triggers.TriggerParameter
+import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.player.PlayerAdvancementDoneEvent
 
@@ -16,6 +17,10 @@ object TriggerAdvancementDone : Trigger("advancement_done") {
     @EventHandler
     fun handle(event: PlayerAdvancementDoneEvent) {
         val player = event.player
+
+        if (event.advancement.key.value().startsWith("recipes/")) {
+            return
+        }
 
         this.dispatch(
             player,

@@ -31,7 +31,7 @@ object TriggerCraft : Trigger("craft") {
         }
 
         val player = event.whoClicked as? Player ?: return
-        val item = event.recipe.result
+        val item = event.inventory.getItem(-1) ?: event.recipe.result
         val cursor: ItemStack? = event.cursor
         var recipeRepetitions = 1
         val click = event.click

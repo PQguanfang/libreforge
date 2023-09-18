@@ -7,7 +7,9 @@ import com.willfp.libreforge.getIntFromExpression
 import com.willfp.libreforge.getOrElse
 import com.willfp.libreforge.triggers.TriggerData
 import com.willfp.libreforge.triggers.TriggerParameter
+import org.bukkit.Material
 import org.bukkit.block.data.Ageable
+import org.bukkit.inventory.meta.Damageable
 
 object EffectAgeCrop : Effect<NoCompileData>("age_crop") {
     override val parameters = setOf(
@@ -26,6 +28,25 @@ object EffectAgeCrop : Effect<NoCompileData>("age_crop") {
         val newAge = (state.age + age).coerceAtMost(state.maximumAge)
         state.age = newAge
         crop.blockData = state
+
+        val player = data.player ?: return true
+
+        val item = player.inventory.itemInMainHand
+
+        val meta = item.itemMeta ?: return false
+
+        if (meta.isUnbreakable || meta !is Damageable) {
+            return true
+        }
+
+        // Edge cases
+        if (item.type == Material.CARVED_PUMPKIN || item.type == Material.PLAYER_HEAD) {
+            return true
+        }
+
+        if (config.getBool("damage_item")) {
+            EffectDamageItem.applyDamage(item, age, player)
+        }
 
         return true
     }

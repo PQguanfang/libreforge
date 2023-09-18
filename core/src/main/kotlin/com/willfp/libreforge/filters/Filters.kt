@@ -31,6 +31,7 @@ import com.willfp.libreforge.filters.impl.FilterText
 import com.willfp.libreforge.filters.impl.FilterTextContains
 import com.willfp.libreforge.filters.impl.FilterVictimConditions
 import com.willfp.libreforge.filters.impl.FilterVictimName
+import com.willfp.libreforge.filters.impl.*
 
 object Filters : Registry<Filter<*, *>>() {
     /**

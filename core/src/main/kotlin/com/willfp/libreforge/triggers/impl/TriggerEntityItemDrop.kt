@@ -10,8 +10,6 @@ import com.willfp.libreforge.triggers.TriggerData
 import com.willfp.libreforge.triggers.TriggerParameter
 import com.willfp.libreforge.triggers.event.EditableEntityDropEvent
 import org.bukkit.event.EventHandler
-
-
 object TriggerEntityItemDrop : Trigger("entity_item_drop") {
     override val parameters = setOf(
         TriggerParameter.PLAYER,
@@ -41,6 +39,7 @@ object TriggerEntityItemDrop : Trigger("entity_item_drop") {
                 victim = entity,
                 location = entity.location,
                 event = editableEvent,
+                item = null,
                 value = originalDrops.sumOf { it.amount }.toDouble()
             )
         )
