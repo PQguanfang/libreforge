@@ -8,6 +8,7 @@ import com.willfp.libreforge.effects.RunOrder
 import com.willfp.libreforge.getDoubleFromExpression
 import com.willfp.libreforge.triggers.TriggerData
 import com.willfp.libreforge.triggers.TriggerParameter
+import org.bukkit.Bukkit
 import org.bukkit.event.entity.EntityDamageEvent
 
 object EffectAddDamage : Effect<NoCompileData>("add_damage") {
@@ -26,6 +27,7 @@ object EffectAddDamage : Effect<NoCompileData>("add_damage") {
     override fun onTrigger(config: Config, data: TriggerData, compileData: NoCompileData): Boolean {
         val event = data.event as? EntityDamageEvent ?: return false
         event.damage += config.getDoubleFromExpression("damage", data)
+        Bukkit.getConsoleSender().sendMessage("改为伤害: " + event.damage)
 
         return true
     }

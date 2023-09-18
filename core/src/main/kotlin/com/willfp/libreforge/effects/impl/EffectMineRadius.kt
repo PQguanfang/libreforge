@@ -38,9 +38,6 @@ object EffectMineRadius : MineBlockEffect<NoCompileData>("mine_radius") {
         for (x in (-radius..radius)) {
             for (y in (-radius..radius)) {
                 for (z in (-radius..radius)) {
-                    if (x == 0 && y == 0 && z == 0) {
-                        continue
-                    }
 
                     val toBreak = block.world.getBlockAt(
                         block.location.clone().add(x.toDouble(), y.toDouble(), z.toDouble())
@@ -78,12 +75,18 @@ object EffectMineRadius : MineBlockEffect<NoCompileData>("mine_radius") {
                         continue
                     }
 
+                    EffectAutoPlant.applyPlant(player, toBreak)
+
                     blocks.add(toBreak)
                 }
             }
         }
 
         player.breakBlocksSafely(blocks)
+
+        if (config.getBool("damage_item")) {
+            EffectDamageItem.applyDamage(data.player.inventory.itemInMainHand, blocks.size, player)
+        }
 
         return true
     }

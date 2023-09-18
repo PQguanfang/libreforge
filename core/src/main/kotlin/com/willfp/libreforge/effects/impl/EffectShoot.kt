@@ -1,12 +1,9 @@
 package com.willfp.libreforge.effects.impl
 
-import com.gamingmesh.jobs.commands.list.fire
 import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.eco.util.runExempted
-import com.willfp.libreforge.NoCompileData
-import com.willfp.libreforge.arguments
+import com.willfp.libreforge.*
 import com.willfp.libreforge.effects.Effect
-import com.willfp.libreforge.enumValueOfOrNull
 import com.willfp.libreforge.triggers.TriggerData
 import com.willfp.libreforge.triggers.TriggerParameter
 import org.bukkit.entity.AbstractArrow
@@ -39,12 +36,16 @@ object EffectShoot : Effect<NoCompileData>("shoot") {
                 player.launchProjectile(projectileClass as Class<out Projectile>, velocity)
             }
 
-            if (config.getBool("launch-at-location") && data.location != null) {
+            if (config.getBool("launch-at-location") && data.location != null && projectile !is AbstractArrow) {
                 projectile.teleportAsync(data.location)
             }
 
             if (projectile is AbstractArrow) {
                 projectile.pickupStatus = AbstractArrow.PickupStatus.DISALLOWED
+                val damage = config.getOrNull("arrow_damage") { getDoubleFromExpression(it, data) }
+                if (damage != null) {
+                    projectile.damage = damage
+                }
             }
 
             if (fire) {

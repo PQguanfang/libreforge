@@ -29,11 +29,10 @@ object EffectAOEBlocks : Effect<AOECompileData>("aoe_blocks") {
 
     override fun onTrigger(config: Config, data: TriggerData, compileData: AOECompileData): Boolean {
         val player = data.player ?: return false
-
         val shape = compileData.shape ?: return false
 
         for (block in shape.getBlocks(
-            player.eyeLocation.toFloat3(),
+            player.location.toFloat3(),
             player.eyeLocation.direction.toFloat3(),
             player.location.world,
             data

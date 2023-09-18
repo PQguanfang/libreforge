@@ -56,10 +56,6 @@ object EffectMineRadiusOneDeep : MineBlockEffect<NoCompileData>("mine_radius_one
                     }
                     // End Jank
 
-                    if (x == 0 && y == 0 && z == 0) {
-                        continue
-                    }
-
                     if (config.getBool("no_corners")) {
                         val atXCorner = abs(x) == radius
                         val atYCorner = abs(y) == radius
@@ -109,12 +105,18 @@ object EffectMineRadiusOneDeep : MineBlockEffect<NoCompileData>("mine_radius_one
                         continue
                     }
 
+                    EffectAutoPlant.applyPlant(player, toBreak)
+
                     blocks.add(toBreak)
                 }
             }
         }
 
         player.breakBlocksSafely(blocks)
+
+        if (config.getBool("damage_item")) {
+            EffectDamageItem.applyDamage(data.player.inventory.itemInMainHand, blocks.size, player)
+        }
 
         return true
     }

@@ -3,30 +3,30 @@ package com.willfp.libreforge.triggers.impl
 import com.willfp.libreforge.triggers.Trigger
 import com.willfp.libreforge.triggers.TriggerData
 import com.willfp.libreforge.triggers.TriggerParameter
-import org.bukkit.entity.LivingEntity
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
-import org.bukkit.event.player.PlayerInteractEntityEvent
+import org.bukkit.event.inventory.SmithItemEvent
 
-object TriggerClickEntity : Trigger("click_entity") {
+object TriggerSmith : Trigger("smith") {
     override val parameters = setOf(
         TriggerParameter.PLAYER,
         TriggerParameter.LOCATION,
-        TriggerParameter.VICTIM,
-        TriggerParameter.EVENT
+        TriggerParameter.ITEM
     )
 
     @EventHandler(ignoreCancelled = true)
-    fun handle(event: PlayerInteractEntityEvent) {
-        val entity = event.rightClicked
-        val player = event.player
+    fun handle(event: SmithItemEvent) {
+
+        if (event.inventory.result == null) return
+
+        val player = event.whoClicked as? Player ?: return
+        val item = event.inventory.result
 
         this.dispatch(
             player,
             TriggerData(
                 player = player,
-                location = entity.location,
-                victim = entity as? LivingEntity,
-                event = event
+                item = item
             )
         )
     }

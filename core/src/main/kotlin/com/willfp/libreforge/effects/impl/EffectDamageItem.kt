@@ -10,6 +10,7 @@ import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.SoundCategory
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerItemBreakEvent
 import org.bukkit.event.player.PlayerItemDamageEvent
@@ -30,6 +31,12 @@ object EffectDamageItem : Effect<NoCompileData>("damage_item") {
 
         val damage = config.getIntFromExpression("damage", data)
 
+        return applyDamage(item, damage, victim)
+    }
+    @JvmStatic
+    fun applyDamage(item: ItemStack, damage: Int, victim: LivingEntity?) : Boolean {
+        if (victim == null) return false
+
         val meta = item.itemMeta ?: return false
 
         if (meta.isUnbreakable || meta !is Damageable) {
@@ -46,33 +53,37 @@ object EffectDamageItem : Effect<NoCompileData>("damage_item") {
             val event = PlayerItemDamageEvent(victim, item, damage)
             Bukkit.getPluginManager().callEvent(event)
             if (!event.isCancelled) {
-                applyDamage(item, event.damage, victim)
+
+                meta.damage += event.damage
+
+                if (meta.damage >= item.type.maxDurability) {
+                    meta.damage = item.type.maxDurability.toInt()
+
+                    item.itemMeta = meta
+
+                    Bukkit.getPluginManager().callEvent(PlayerItemBreakEvent(victim, item))
+                    victim.playSound(victim.location, Sound.ENTITY_ITEM_BREAK, SoundCategory.BLOCKS, 1f, 1f)
+
+                    item.type = Material.AIR
+                } else {
+                    item.itemMeta = meta
+                }
             }
         } else {
-            applyDamage(item, damage, null)
+            meta.damage += damage
+
+            if (meta.damage >= item.type.maxDurability) {
+                meta.damage = item.type.maxDurability.toInt()
+
+                item.itemMeta = meta
+
+                item.type = Material.AIR
+            } else {
+                item.itemMeta = meta
+            }
         }
 
         return true
-    }
 
-    private fun applyDamage(itemStack: ItemStack, amount: Int, player: Player?) {
-        val meta = itemStack.itemMeta as? Damageable ?: return
-
-        meta.damage += amount
-
-        if (meta.damage >= itemStack.type.maxDurability) {
-            meta.damage = itemStack.type.maxDurability.toInt()
-
-            itemStack.itemMeta = meta
-
-            if (player != null) {
-                Bukkit.getPluginManager().callEvent(PlayerItemBreakEvent(player, itemStack))
-                player.playSound(player.location, Sound.ENTITY_ITEM_BREAK, SoundCategory.BLOCKS, 1f, 1f)
-            }
-
-            itemStack.type = Material.AIR
-        } else {
-            itemStack.itemMeta = meta
-        }
     }
 }

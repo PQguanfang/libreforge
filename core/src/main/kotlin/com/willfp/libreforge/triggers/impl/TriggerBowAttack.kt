@@ -3,11 +3,9 @@ package com.willfp.libreforge.triggers.impl
 import com.willfp.libreforge.triggers.Trigger
 import com.willfp.libreforge.triggers.TriggerData
 import com.willfp.libreforge.triggers.TriggerParameter
-import org.bukkit.entity.AbstractArrow
 import org.bukkit.entity.Arrow
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
-import org.bukkit.entity.Trident
 import org.bukkit.event.EventHandler
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 
@@ -26,7 +24,7 @@ object TriggerBowAttack : Trigger("bow_attack") {
         val arrow = event.damager
         val victim = event.entity
 
-        if (arrow !is AbstractArrow || arrow is Trident) {
+        if (arrow !is Arrow) {
             return
         }
 
