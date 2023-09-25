@@ -433,6 +433,7 @@ object Effects : Registry<Effect<*>>() {
         register(EffectSetItemPoints)
         register(EffectSetCustomModelData)
         register(EffectDropWeightedRandomItem)
+        register(EffectReplantCrops)
         register(EffectSwarm)
         register(EffectTargetPlayer)
         register(EffectReplaceNear)
@@ -446,5 +447,8 @@ object Effects : Registry<Effect<*>>() {
         register(EffectSetItemData)
         register(EffectRemoveItemData)
         register(EffectAOEBlocks)
+        register(EffectGiveSaturation)
+        register(EffectSetSaturation)
+        register(EffectSetFood)
     }
 }
