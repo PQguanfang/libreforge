@@ -11,7 +11,8 @@ object TriggerRunCommand : Trigger("run_command") {
     override val parameters = setOf(
         TriggerParameter.PLAYER,
         TriggerParameter.LOCATION,
-        TriggerParameter.TEXT
+        TriggerParameter.TEXT,
+        TriggerParameter.EVENT
     )
 
     @EventHandler(ignoreCancelled = true)
@@ -24,7 +25,8 @@ object TriggerRunCommand : Trigger("run_command") {
                 TriggerData(
                     player = player,
                     location = player.location,
-                    text = event.message
+                    text = event.message,
+                    event = event
                 )
             )
         }

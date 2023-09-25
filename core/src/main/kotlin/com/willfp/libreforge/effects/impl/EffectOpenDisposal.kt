@@ -4,30 +4,25 @@ import com.willfp.eco.core.config.interfaces.Config
 import com.willfp.libreforge.NoCompileData
 import com.willfp.libreforge.arguments
 import com.willfp.libreforge.effects.Effect
-import com.willfp.libreforge.effects.RunOrder
-import com.willfp.libreforge.getDoubleFromExpression
 import com.willfp.libreforge.triggers.TriggerData
 import com.willfp.libreforge.triggers.TriggerParameter
 import org.bukkit.Bukkit
-import org.bukkit.event.entity.EntityDamageEvent
 
-object EffectAddDamage : Effect<NoCompileData>("add_damage") {
+object EffectOpenDisposal : Effect<NoCompileData>("open_disposal") {
     override val parameters = setOf(
-        TriggerParameter.EVENT
+        TriggerParameter.PLAYER
     )
 
     override val arguments = arguments {
-        require("damage", "You must specify the damage to add!")
+        require("title", "You must specify the UI title!")
     }
 
-    override val supportsDelay = false
-
-    override val runOrder = RunOrder.LATE
-
     override fun onTrigger(config: Config, data: TriggerData, compileData: NoCompileData): Boolean {
-        val event = data.event as? EntityDamageEvent ?: return false
-        event.damage += config.getDoubleFromExpression("damage", data)
+        val player = data.player ?: return false
+
+        player.openInventory(Bukkit.createInventory(null, 54, config.getString("title")))
 
         return true
     }
+
 }
