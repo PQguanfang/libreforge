@@ -105,7 +105,7 @@ object EffectMineRadiusOneDeep : MineBlockEffect<NoCompileData>("mine_radius_one
                         continue
                     }
 
-                    EffectAutoPlant.applyPlant(player, toBreak)
+                    EffectReplantCrops.applyPlant(player, toBreak)
 
                     blocks.add(toBreak)
                 }

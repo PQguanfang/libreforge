@@ -9,10 +9,7 @@ import com.willfp.libreforge.effects.templates.MineBlockEffect
 import com.willfp.libreforge.getIntFromExpression
 import com.willfp.libreforge.triggers.TriggerData
 import com.willfp.libreforge.triggers.TriggerParameter
-import org.bukkit.Bukkit
 import org.bukkit.Material
-import org.bukkit.event.player.PlayerItemDamageEvent
-import org.bukkit.inventory.meta.Damageable
 
 object EffectMineVein : MineBlockEffect<NoCompileData>("mine_vein") {
     override val parameters = setOf(
@@ -44,7 +41,7 @@ object EffectMineVein : MineBlockEffect<NoCompileData>("mine_vein") {
         ).filter { AntigriefManager.canBreakBlock(player, it) }
 
         for (toBreak in blocks) {
-            EffectAutoPlant.applyPlant(player, toBreak)
+            EffectReplantCrops.applyPlant(player, toBreak)
         }
 
         player.breakBlocksSafely(blocks)

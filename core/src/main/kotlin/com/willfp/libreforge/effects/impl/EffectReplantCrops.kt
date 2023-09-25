@@ -1,56 +1,43 @@
 package com.willfp.libreforge.effects.impl
 
 import com.willfp.eco.core.config.interfaces.Config
-import com.willfp.eco.core.integrations.antigrief.AntigriefManager
 import com.willfp.eco.core.map.listMap
 import com.willfp.libreforge.NoCompileData
 import com.willfp.libreforge.ProvidedHolder
-import com.willfp.libreforge.arguments
 import com.willfp.libreforge.effects.Effect
 import com.willfp.libreforge.effects.Identifiers
 import com.willfp.libreforge.plugin
 import org.bukkit.Bukkit
 import org.bukkit.Material
+import org.bukkit.block.Block
 import org.bukkit.block.BlockFace
 import org.bukkit.block.data.Ageable
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.inventory.ItemStack
-import java.util.UUID
+import java.util.*
 
 object EffectReplantCrops : Effect<NoCompileData>("replant_crops") {
-    override val arguments = arguments {
-        require("consume_seeds", "You must specify if seeds should be consumed!")
-        require("only_fully_grown", "You must specify only fully grown crops should be replanted!")
-    }
 
-    private val players = listMap<UUID, ReplantConfig>()
+    private val players = listMap<UUID, UUID>()
 
-    override fun onEnable(
-        player: Player,
-        config: Config,
-        identifiers: Identifiers,
-        holder: ProvidedHolder,
-        compileData: NoCompileData
-    ) {
-        players[player.uniqueId] += ReplantConfig(
-            identifiers.uuid,
-            config.getBool("consume_seeds"),
-            config.getBool("only_fully_grown")
-        )
+    override fun onEnable(player: Player, config: Config, identifiers: Identifiers, holder: ProvidedHolder, compileData: NoCompileData) {
+        players[player.uniqueId] += identifiers.uuid
     }
 
     override fun onDisable(player: Player, identifiers: Identifiers, holder: ProvidedHolder) {
-        players[player.uniqueId].removeIf { it.uuid == identifiers.uuid }
+        players[player.uniqueId] -= identifiers.uuid
     }
 
-    @EventHandler(
-        ignoreCancelled = true
-    )
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     fun handle(event: BlockBreakEvent) {
+        if (event.isCancelled)
+            return
+
         val player = event.player
 
         if (players[player.uniqueId].isEmpty()) {
@@ -58,11 +45,19 @@ object EffectReplantCrops : Effect<NoCompileData>("replant_crops") {
         }
 
         val block = event.block
-        val type = block.type
 
-        if (!AntigriefManager.canPlaceBlock(player, block)) {
+        applyPlant(player, block)
+
+    }
+
+    @JvmStatic
+    fun applyPlant(player: Player, block: Block) {
+
+        if (players[player.uniqueId].isEmpty()) {
             return
         }
+
+        val type = block.type
 
         if (type in arrayOf(
                 Material.GLOW_BERRIES,
@@ -76,52 +71,37 @@ object EffectReplantCrops : Effect<NoCompileData>("replant_crops") {
             return
         }
 
-        val data = block.blockData
+        val blockData = block.blockData
 
-        if (data !is Ageable) {
+        if (blockData !is Ageable) {
             return
         }
 
-        val consumeSeeds = players[player.uniqueId].any {
-            it.consumeSeeds
+        if (blockData.age != blockData.maximumAge) {
+            return
         }
 
-        val onlyFullyGrown = players[player.uniqueId].all {
-            it.onlyFullyGrown
-        }
-
-        if (consumeSeeds) {
-            val item = ItemStack(
-                when (type) {
-                    Material.WHEAT -> Material.WHEAT_SEEDS
-                    Material.POTATOES -> Material.POTATO
-                    Material.CARROTS -> Material.CARROT
-                    Material.BEETROOTS -> Material.BEETROOT_SEEDS
-                    else -> type
-                }
-            )
-
-            val hasSeeds = player.inventory.removeItem(item).isEmpty()
-
-            if (!hasSeeds) {
-                return
+        val item = ItemStack(
+            when (type) {
+                Material.WHEAT -> Material.WHEAT_SEEDS
+                Material.POTATOES -> Material.POTATO
+                Material.CARROTS -> Material.CARROT
+                Material.BEETROOTS -> Material.BEETROOT_SEEDS
+                else -> type
             }
+        )
+
+        val hasSeeds = player.inventory.removeItem(item).isEmpty()
+
+        if (!hasSeeds) {
+            return
         }
 
-        if (data.age != data.maximumAge) {
-            if (onlyFullyGrown) {
-                return
-            }
+        blockData.age = 0
 
-            event.isDropItems = false
-            event.expToDrop = 0
-        }
-
-        data.age = 0
-
-        plugin.scheduler.run {
+        plugin.scheduler.runLater(5L) {
             block.type = type
-            block.blockData = data
+            block.blockData = blockData
 
             // Improves compatibility with other plugins.
             Bukkit.getPluginManager().callEvent(
@@ -137,10 +117,4 @@ object EffectReplantCrops : Effect<NoCompileData>("replant_crops") {
             )
         }
     }
-
-    private data class ReplantConfig(
-        val uuid: UUID,
-        val consumeSeeds: Boolean,
-        val onlyFullyGrown: Boolean
-    )
 }
